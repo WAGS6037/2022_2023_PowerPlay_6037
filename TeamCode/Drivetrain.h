@@ -1,0 +1,16 @@
+//
+// Created by kkz4 on 10/7/2022.
+//
+
+#ifndef INC_2022_2023_POWERPLAY_6037_DRIVETRAIN_H
+#define INC_2022_2023_POWERPLAY_6037_DRIVETRAIN_H
+
+
+
+class Drivetrain {
+
+};
+
+
+
+#endif //INC_2022_2023_POWERPLAY_6037_DRIVETRAIN_H
