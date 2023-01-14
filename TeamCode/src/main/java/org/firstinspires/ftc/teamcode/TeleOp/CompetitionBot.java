@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
 
@@ -11,7 +12,10 @@ import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
 public class CompetitionBot extends OpMode {
 
     /* Declare OpMode members. */
+
     HardwareMap_CompetitionBot robot       = new HardwareMap_CompetitionBot();
+    private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime runtimeLift = new ElapsedTime();
 
     @Override
     public void init() {
@@ -19,22 +23,23 @@ public class CompetitionBot extends OpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
+
         robot.init(hardwareMap);
-        robot.lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.slideSystem.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello WAGS Driver!!");    //
-
     }
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
+
     @Override
     public void init_loop() {
     }
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
+     /* Code to run ONCE when the driver hits PLAY
      */
+
     @Override
     public void start() {
 
@@ -43,7 +48,7 @@ public class CompetitionBot extends OpMode {
     @Override
     public void loop() {
 
-        double speedDuck = 0.5;
+        //double speedDuck = 0.5;
         double rStickX;
         double rStickY;
         double lStickX;
@@ -71,7 +76,6 @@ public class CompetitionBot extends OpMode {
         if (maxPower > 1)
             scaleDown = 1.0 / maxPower;
 
-
         robot.leftFront.setPower((mag2 - rotationPower) * scaleDown);
         robot.rightFront.setPower((mag1 + rotationPower) * scaleDown);
         robot.leftBack.setPower((mag1 - rotationPower) * scaleDown);
@@ -97,128 +101,84 @@ public class CompetitionBot extends OpMode {
         boolean isButtonDD1 = gamepad1.dpad_down;
 
         //programming buttons for gamepad 2 bumpers
-        //lift right bumper and left bumper
+
+        //lift
         if (isButtonRB2) {
-            robot.lift.setPower(1);
+            robot.slideSystem.setPower(1);
             telemetry.addData("Button","RB");
-            //A is retract
         } else if (isButtonLB2) {
-            robot.lift.setPower(-1);
+            robot.slideSystem.setPower(-1);
             telemetry.addData("Button","LB");
-            //A is retract
         }else {
             telemetry.addData("Button","None");
-            robot.lift.setPower(0);
+            robot.slideSystem.setPower(0);
         }
-
-
         //programming buttons for gamepad 2
         //X, Y, A, B
         //intake and retract
+
+        //lift to low junction --> button a = low junction
+        //Claw is not operating after lift occurs --> need to fix
         if (isButtonA2) {
-            robot.leftIntake.setPower(1);
-            robot.rightIntake.setPower(1);
+            liftUp(1.65, 1);
             telemetry.addData("Button","A2");
-            //A is retract
-        } else if (isButtonB2) {
-            robot.leftIntake.setPower(0.5);
-            robot.rightIntake.setPower(0.5);
-            telemetry.addData("Button","B2");
-            //B is extend
-        } else if (isButtonX2) {
-            robot.leftIntake.setPower(-1);
-            robot.rightIntake.setPower(-1);
+        } else {
+            telemetry.addData("Button","None");
+            robot.slideSystem.setPower(0);
+        }
+
+        //lift to mid-junction --> button X = mid-junction
+        //Claw is not operating after lift occurs --> need to fix
+        if (isButtonX2) {
+            liftUp(2.65, 1);
             telemetry.addData("Button","X2");
-            //X is retract, but with full power
+        } else {
+            telemetry.addData("Button","None");
+            robot.slideSystem.setPower(0);
+        }
 
-        }  else if (isButtonY2) {
-            robot.leftIntake.setPower(-0.5);
-            robot.rightIntake.setPower(-0.5);
+        //lift to high junction --> button Y = high junction
+        //Claw is not operating after lift occurs --> need to fix
+        if (isButtonY2) {
+            robot.slideSystem.setPower(0);
+            liftUp(3.80, 1);
             telemetry.addData("Button","Y2");
-            //X is retract, but with full power
-        }else {
+        } else {
             telemetry.addData("Button","None");
-            robot.leftIntake.setPower(0);
-            robot.rightIntake.setPower(0);
+            robot.slideSystem.setPower(0);
         }
-        //programming buttons for gamepad 2
-        //duckwheel
-        //gamepad
-        if (isButtonDU2) {
-            robot.duckMotor.setPower(speedDuck);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DU");
-            //A is retract
-        } else if (isButtonDD2) {
-            robot.duckMotor.setPower(-speedDuck);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DD");
-            //B is extend
-        } else if (isButtonDR2) {
-            robot.duckMotor.setPower(1);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DR");
-            //X is retract, but with full power
 
-        }  else if (isButtonDL2) {
-            robot.duckMotor.setPower(-1);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DL");
-            //X is retract, but with full power
+        //claw
+        if (isButtonB2) {
+            //robot.leftClaw.setPower(1); --> would have needed if the servo was continuous
+            //robot.rightClaw.setPower(1); --> would have needed if the servo was continuous
+            robot.rightClaw.setPosition(0);
+            robot.leftClaw.setPosition(180);
+            telemetry.addData("Button","B2");
         }else {
-            robot.greenLED.setState(false);
-            robot.redLED.setState(true);
-            telemetry.addData("Button","None");
-            robot.duckMotor.setPower(0);
+            //robot.leftClaw.setPower(0); --> would have needed if the servo was continuous
+            //robot.rightClaw.setPower(0); --> would have needed if the servo was continuous
+            robot.rightClaw.setPosition(180);
+            robot.leftClaw.setPosition(0);
+            telemetry.addData("Button", "None");
         }
-        //programming buttons for gamepad 1
-        //duck wheel
-        //gamepad
-        if (isButtonDU1) {
-            robot.duckMotor.setPower(speedDuck);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DU");
-            //A is retract
-        } else if (isButtonDD1) {
-            robot.duckMotor.setPower(-speedDuck);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DD");
-            //B is extend
-        } else if (isButtonDR1) {
-            robot.duckMotor.setPower(1);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DR");
-            //X is retract, but with full power
+    }
 
-        }  else if (isButtonDL1) {
-            robot.duckMotor.setPower(-1);
-            robot.greenLED.setState(true);
-            robot.redLED.setState(false);
-            telemetry.addData("Button","DL");
-            //X is retract, but with full power
-        }else {
-            robot.greenLED.setState(false);
-            robot.redLED.setState(true);
-            telemetry.addData("Button","None");
-            robot.duckMotor.setPower(0);
+    //liftUp
+    public void liftUp (double liftTime, double liftSpeed) {
+        runtimeLift.reset();
+        while (runtimeLift.seconds() < liftTime) {
+            robot.slideSystem.setPower(liftSpeed);
         }
+        robot.slideSystem.setPower(0);
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
+
     @Override
     public void stop() {
         telemetry.addData("Say", "Good Job Team! We have STOPPED!!");
-
     }
-
-
 }

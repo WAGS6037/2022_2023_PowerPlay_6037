@@ -40,7 +40,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
  */
 
 @TeleOp(name="Drive To Target", group = "Concept")
-@Disabled
+//Disabled
 public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
 {
     // Adjust these numbers to suit your robot.
@@ -65,15 +65,16 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY =
-            " --- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+    private static final String VUFORIA_KEY = "ARoZitn/////AAABmZ6FX2EMrUKzj0gbg/slFZeCJINyTVmTiYubXSQne+811U577IumBsFcWUorKfsiJLZLvq/p5zEcqWGczDMB4VQ3QNZyGjs5ncTkAaUxf+/BfZySUP598FFzJgFNk3rGNus2o83yX7ulRiXzicrKx+f+p2uNCjCGhY6c1BS+MtYn6Zu6n3ShX5WQ85qqGkcJHiURiaMEOfCHoRyAuITKcXNNR0YpaRr6GQF3npuu1IJMUv1QYmYqKGQSlYIZhmnYDSTakUoWj2bylDAxqFxN5g9/vupDn2nk49njysmiB0LrkIhaLkcGxlQ89pgjtF1DBMN+PUoHpJgspzY57oS13MT9pcDJxu+5xpFHrd6jKIgG";
 
     VuforiaLocalizer vuforia    = null;
     OpenGLMatrix targetPose     = null;
     String targetName           = "";
 
-    private DcMotor leftDrive   = null;
-    private DcMotor rightDrive  = null;
+    public DcMotor leftFront = null;
+    public DcMotor rightFront = null;
+    public DcMotor leftBack = null;
+    public DcMotor rightBack = null;
 
     @Override public void runOpMode()
     {
@@ -92,7 +93,7 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
         parameters.useExtendedTracking = false;
 
         // Connect to the camera we are to use.  This name must match what is set up in Robot Configuration
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "webcam");
         this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         // Load the trackable objects from the Assets file, and give them meaningful names
@@ -108,14 +109,18 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightFront.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        leftBack.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightBack.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         telemetry.addData(">", "Press Play to start");
         telemetry.update();
@@ -194,9 +199,12 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
             // Calculate left and right wheel powers and send to them to the motors.
             double leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
             double rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
-            leftDrive.setPower(leftPower);
-            rightDrive.setPower(rightPower);
-
+            double leftBackPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+            double rightBackPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+            leftFront.setPower(leftPower);
+            rightFront.setPower(rightPower);
+            leftBack.setPower(leftBackPower);
+            rightBack.setPower(rightBackPower);
             sleep(10);
         }
     }

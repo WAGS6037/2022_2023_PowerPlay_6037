@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareMap;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -29,6 +30,7 @@ public class HardwareMap_Holonomic
     public DcMotor  rightFront  = null;
     public DcMotor  leftBack   = null;
     public DcMotor  rightBack  = null;
+    public BNO055IMU imu;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -69,5 +71,16 @@ public class HardwareMap_Holonomic
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        //IMU
+
+        imu = hwMap.get(BNO055IMU.class, "imu");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+        //get and initialize IMU
+        imu.initialize(parameters);
     }
 }
