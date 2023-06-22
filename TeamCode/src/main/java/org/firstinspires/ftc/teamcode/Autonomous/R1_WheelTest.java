@@ -39,9 +39,9 @@ import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_Holonomic;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="B1 Park Terminal", group="Blue")
+@Autonomous(name="R1 Wheel Test", group="Red")
 //@Disabled
-public class B1_Park_Terminal extends LinearOpMode {
+public class R1_WheelTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     HardwareMap_Holonomic robot = new HardwareMap_Holonomic(); // Use a Pushbot's hardware
@@ -79,27 +79,27 @@ public class B1_Park_Terminal extends LinearOpMode {
             waitForStart();
             state = 1;
         }
-        //Program: B1 Park Terminal
-        //if state = 1:
-        //(1) update telemetry
-        //(2) strafe right into terminal
-        //switch to state 2
-        //if state = 2:
-        //(1) stop all motors
-
-        //strafing right into terminal
+        //strafe left (really right) into terminal
         if (state == 1){
             telemetry.addData("State","1");
             telemetry.update();
-            strafeLeft(DRIVE_SPEED, 9);
+            strafeRight(DRIVE_SPEED, 6);
             state = 2;
         }
-        //stopping robot (stopping all motors)
-        if(state == 2){
+        //move forward
+        if (state == 2){
+            telemetry.addData("State","1");
+            telemetry.update();
+            encoderDrive(5, 6, 6, 6, 6, 4.0);
+            state = 3;
+        }
+        //stopping robot
+        if(state == 3){
             telemetry.addData("State", "4");
             telemetry.update();
             stopMotors();
-            state = 3;
+            //Move forward six feet.
+            state = 4;
         }
 
         //stop all motion

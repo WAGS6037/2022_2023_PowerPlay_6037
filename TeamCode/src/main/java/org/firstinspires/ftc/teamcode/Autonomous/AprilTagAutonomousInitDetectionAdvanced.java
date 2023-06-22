@@ -22,43 +22,42 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_Holonomic;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
+import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_Holonomic;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
 @Autonomous
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
+public class AprilTagAutonomousInitDetectionAdvanced extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
 
     /* Declare OpMode members. */ // I inserted the below variables
-    HardwareMap_Holonomic robot = new HardwareMap_Holonomic(); // Use a Pushbot's hardware
+    HardwareMap_CompetitionBot robot = new HardwareMap_CompetitionBot(); // Use a Pushbot's hardware
     private ElapsedTime runtime = new ElapsedTime();
-
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    private ElapsedTime runtimeLift = new ElapsedTime();
+    static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
+    static final double DRIVE_GEAR_REDUCTION = 2.0;     // This is < 1.0 if geared UP
+    static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
+    static final double DRIVE_SPEED = 0.6;
+    static final double TURN_SPEED = 0.5;
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -68,6 +67,10 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     double fy = 578.272;
     double cx = 402.145;
     double cy = 221.506;
+
+
+    final int highJunction = -8500;
+    //final int level1 = -4530;
 
     // UNITS ARE METERS
     double tagsize = 0.166;
@@ -168,7 +171,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
 
         if (tagOfInterest == null || tagOfInterest.id == LEFT) {
             int state = 0;
-            if (state == 0){
+            if (state == 0) {
                 //init robot
                 robot.init(hardwareMap);
 
@@ -177,57 +180,100 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
                 telemetry.update();
 
                 //Send telemetry message to indicate successful Encoder reset
-                telemetry.addData("Path0",  "Starting at %7d :%7d",
+                telemetry.addData("Path0", "Starting at %7d :%7d",
                         robot.leftFront.getCurrentPosition(),
                         robot.rightFront.getCurrentPosition());
                 telemetry.update();
                 waitForStart();
                 state = 1;
             }
-            //strafe left (really right) into terminal
-            if (state == 1){
-                telemetry.addData("State","1");
+            //clamp down on cone (it starts touching the grabbers)
+            if (state == 1) {
+                telemetry.addData("State", "1");
                 telemetry.update();
-                strafeRight(DRIVE_SPEED, 6);
-                //encoderDrive(DRIVE_SPEED, 1, 1, 1, 1, 4.0);
+                robot.rightClaw.setPosition(0);
+                robot.leftClaw.setPosition(180);
                 state = 2;
             }
-            //drive forward into region 1
-            if(state == 2){
+            //strafe right (really left) into mid-substation
+            if (state == 2) {
+                telemetry.addData("State", "1");
+                telemetry.update();
+                strafeLeft(DRIVE_SPEED, 7);
+                state = 3;
+            }
+            //drive forward into region 3 (with cone) --> **backward is forward now**
+            if (state == 3) {
                 telemetry.addData("State", "2");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
-                //encoderDrive(DRIVE_SPEED, 5, -5, 5, -5, 4.0);
-                state = 5; //Skip to the end and stop motors to test straightness
-            }
-            //turn left a bit
-            if(state == 3){
-                telemetry.addData("State", "3");
-                telemetry.update();
-                encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
-                stopMotors();
+                encoderDrive(DRIVE_SPEED, -5.75, -5.75, -5.75, -5.75, 4.0);
                 state = 4;
             }
-            //strafe left (right tho) just a bit
-            if(state == 4){
-                telemetry.addData("State", "3");
+            //strafe right (really left) to align with the high junction
+            //if (state == 4) {
+                //telemetry.addData("State", "2");
+                //telemetry.update();
+                //strafeLeft(DRIVE_SPEED, 1);
+                //state = 5;
+            //}
+            //lift up slide system (with cone)
+
+            if (state == 4) {
+                telemetry.addData("State", "4");
                 telemetry.update();
-                //encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
-                strafeRight(DRIVE_SPEED, 1);
-                stopMotors();
+                //liftUp(3, 1);
+                liftUpPosition(-10000, 1);
                 state = 5;
             }
+            //move forward a tad
+            if (state == 8) {
+                telemetry.addData("State", "2");
+                telemetry.update();
+                encoderDrive(DRIVE_SPEED, -0.5, -0.5, -0.5, -0.5, 4.0);
+                state = 9;
+            }
+            //deposit cone on high junction (un-clamp grabbers)
+            if (state == 7) {
+                telemetry.addData("State", "2");
+                telemetry.update();
+                robot.rightClaw.setPosition(180);
+                robot.leftClaw.setPosition(0);
+                state = 8;
+            }
+            //back up 1 unit (to bring down lift)
+            if (state == 8) {
+                telemetry.addData("State", "2");
+                telemetry.update();
+                encoderDrive(DRIVE_SPEED, -1, -1, -1, -1, 4.0);
+                state = 9;
+            }
+            //bring down lift
+            if (state == 9) {
+                telemetry.addData("State", "2");
+                telemetry.update();
+                //liftUp(3, -1);
+
+                state = 10;
+            }
+            //strafe into region 1 (strafe left - but really right)
+            if (state == 10) {
+                telemetry.addData("State", "2");
+                telemetry.update();
+                //strafeRight(DRIVE_SPEED, 10);
+
+                state = 11;
+            }
             //stop robot
-            if(state == 5){
+            if (state == 11) {
                 telemetry.addData("State", "3");
                 telemetry.update();
                 stopMotors();
-                state = 6;
+                state = 12;
             }
 
         } else if (tagOfInterest.id == MIDDLE) {
             int state = 0;
-            if (state == 0){
+            if (state == 0) {
                 //init robot
                 robot.init(hardwareMap);
 
@@ -236,22 +282,22 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
                 telemetry.update();
 
                 // Send telemetry message to indicate successful Encoder reset
-                telemetry.addData("Path0",  "Starting at %7d :%7d",
+                telemetry.addData("Path0", "Starting at %7d :%7d",
                         robot.leftFront.getCurrentPosition(),
                         robot.rightFront.getCurrentPosition());
                 telemetry.update();
                 waitForStart();
-                state =1;
+                state = 1;
             }
             //drive forward into region 2
-            if(state == 1){
+            if (state == 1) {
                 telemetry.addData("State", "1");
                 telemetry.update();
                 encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
                 state = 2;
             }
             //stop robot
-            if(state == 2){
+            if (state == 2) {
                 telemetry.addData("State", "2");
                 telemetry.update();
                 stopMotors();
@@ -260,7 +306,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
 
         } else {
             int state = 0;
-            if (state == 0){
+            if (state == 0) {
                 //init robot
                 robot.init(hardwareMap);
 
@@ -269,44 +315,34 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
                 telemetry.update();
 
                 // Send telemetry message to indicate successful Encoder reset
-                telemetry.addData("Path0",  "Starting at %7d :%7d",
+                telemetry.addData("Path0", "Starting at %7d :%7d",
                         robot.leftFront.getCurrentPosition(),
                         robot.rightFront.getCurrentPosition());
                 telemetry.update();
                 waitForStart();
                 state = 1;
             }
-            //strafe right one block (to align with region 3)
-            if(state == 1){
+            //strafe right (really left) into mid-substation (to align with region 3)
+            if (state == 1) {
                 telemetry.addData("State", "1");
                 telemetry.update();
-                //encoderDrive(DRIVE_SPEED, 10, 10, 10, 10, 4.0);
                 strafeLeft(DRIVE_SPEED, 6);
                 state = 2;
             }
             //drive forward into region 3
-            if(state == 2){
+            if (state == 2) {
                 telemetry.addData("State", "2");
                 telemetry.update();
                 encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
                 state = 3;
             }
-            //turn left a bit
-            if(state == 3){
+            //stop robot
+            if (state == 3) {
                 telemetry.addData("State", "3");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
                 stopMotors();
                 state = 4;
             }
-            //stop robot
-            if(state == 4){
-                telemetry.addData("State", "3");
-                telemetry.update();
-                stopMotors();
-                state = 5;
-            }
-
         }
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
         //while (opModeIsActive()) {sleep(20);}
@@ -321,6 +357,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
+
     public void encoderDrive(double speed,
                              double leftInches, double rightInches, double leftBackInches, double rightBackInches,
                              double timeoutS) {
@@ -387,12 +424,14 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
             //  sleep(250);   // optional pause after each move
         }
     }
+
     public void stopMotors() {
         robot.leftFront.setPower(0);
         robot.leftBack.setPower(0);
         robot.rightFront.setPower(0);
         robot.rightBack.setPower(0);
     }
+
     public void strafeLeft(double power, int distance) {
         Orientation angles;
         double error;
@@ -424,6 +463,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         }
         stopMotors();
     }
+
     public void strafeRight(double power, int distance) {
         Orientation angles;
         double error;
@@ -454,6 +494,22 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
             telemetry.update();
         }
         stopMotors();
-        }
     }
-//
+
+    public void liftUp(double liftTime, double liftSpeed) {
+        runtimeLift.reset();
+        while (opModeIsActive() &&
+                (runtimeLift.seconds() < liftTime)) {
+            robot.slideSystem.setPower(liftSpeed);
+        }
+        robot.slideSystem.setPower(0);
+    }
+
+    public void liftUpPosition(int position, double liftSpeed) {
+
+        robot.slideSystem.setTargetPosition(position);
+        robot.slideSystem.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.slideSystem.setPower(Math.abs(liftSpeed));
+
+    }
+}

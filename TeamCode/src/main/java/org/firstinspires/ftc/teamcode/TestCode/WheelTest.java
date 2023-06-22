@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.TestCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
 
 // name this OpMode and determine a group
-@TeleOp (name="CompetitionBot", group="TeleOP")
-public class CompetitionBot extends OpMode {
+@TeleOp (name="WheelTest", group= "TestCode")
+public class WheelTest extends OpMode {
 
     /* Declare OpMode members. */
 
@@ -25,7 +25,7 @@ public class CompetitionBot extends OpMode {
          */
 
         robot.init(hardwareMap);
-        //robot.slideSystem.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.slideSystem.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello WAGS Driver!!");    //
     }
@@ -37,7 +37,7 @@ public class CompetitionBot extends OpMode {
     public void init_loop() {
     }
 
-     /* Code to run ONCE when the driver hits PLAY
+    /* Code to run ONCE when the driver hits PLAY
      */
 
     @Override
@@ -83,9 +83,9 @@ public class CompetitionBot extends OpMode {
         //original --> - / + / - / +
 
         //end of gamepad driving 1
-        boolean isButtonB2 = gamepad2.b; //clamping
-        boolean isButtonA2 = gamepad2.a; //up lift
-        boolean isButtonX2 = gamepad2.x; //dowwn lift
+        boolean isButtonB2 = gamepad2.b;
+        boolean isButtonA2 = gamepad2.a;
+        boolean isButtonX2 = gamepad2.x;
         boolean isButtonY2 = gamepad2.y;
 
         boolean isButtonLB2 = gamepad2.left_bumper;
@@ -102,16 +102,13 @@ public class CompetitionBot extends OpMode {
         boolean isButtonDD1 = gamepad1.dpad_down;
 
         //programming buttons for gamepad 2 bumpers
-        final int down = 0;
-        final int level1 = -4530;
 
-        /*
+        //lift
         if (isButtonRB2) {
-            //robot.slideSystem.setPower(1);
-            //liftUpPosition(level1, 1.0);
+            robot.slideSystem.setPower(1);
             telemetry.addData("Button","RB");
         } else if (isButtonLB2) {
-            //liftUpPosition(down, 1.0);
+            robot.slideSystem.setPower(-1);
             telemetry.addData("Button","LB");
         }else {
             telemetry.addData("Button","None");
@@ -119,42 +116,47 @@ public class CompetitionBot extends OpMode {
         }
         //programming buttons for gamepad 2
         //X, Y, A, B
-         */
 
-        //raise slide system
-        if (isButtonRB2) {
-            liftUpPosition(level1, 1.0);
-            telemetry.addData("Button","A");
-        } else if (isButtonLB2) {
-            liftUpPosition(down, 1.0);
-            telemetry.addData("Button", "B");
-        }else {
-            telemetry.addData("Button","None");
-            robot.slideSystem.setPower(0);
-        }
+        //lift to low junction --> button a = low junction
+        //if (isButtonA2) {
+        //liftUp(1.65, 1);
+        //telemetry.addData("Button","A2");
+        //} else {
+        //telemetry.addData("Button","None");
+        //robot.slideSystem.setPower(0);
+        //}
 
-        /*
+        //lift to mid-junction --> button X = mid-junction
+        //Claw is not operating after lift occurs --> need to fix
+        //if (isButtonX2) {
+        //liftUp(2.65, 1);
+        //telemetry.addData("Button","X2");
+        //} else {
+        //telemetry.addData("Button","None");
+        //robot.slideSystem.setPower(0);
+        //}
+
         //lift to high junction --> button Y = high junction
-        if (isButtonY2) {
-            robot.slideSystem.setPower(0);
-            liftUp(3.80, 1);
-            telemetry.addData("Button","Y2");
-        } else {
-            telemetry.addData("Button","None");
-            robot.slideSystem.setPower(0);
-        }
-         */
+        //Claw is not operating after lift occurs --> need to fix
+        //if (isButtonY2) {
+        //robot.slideSystem.setPower(0);
+        //liftUp(3.80, 1);
+        //telemetry.addData("Button","Y2");
+        //} else {
+        //telemetry.addData("Button","None");
+        //robot.slideSystem.setPower(0);
+        //}
 
         //claw
-        if (isButtonB2) {
-            robot.rightClaw.setPosition(0);
-            robot.leftClaw.setPosition(180);
-            telemetry.addData("Button","B2");
-        }else {
-            robot.rightClaw.setPosition(180);
-            robot.leftClaw.setPosition(0);
-            telemetry.addData("Button", "None");
-        }
+        //if (isButtonB2) {
+            //robot.rightClaw.setPosition(0);
+            //robot.leftClaw.setPosition(180);
+            //telemetry.addData("Button","B2");
+        //}else {
+            //robot.rightClaw.setPosition(180);
+            //robot.leftClaw.setPosition(0);
+            //telemetry.addData("Button", "None");
+        //}
     }
 
     //liftUp
@@ -164,14 +166,6 @@ public class CompetitionBot extends OpMode {
             robot.slideSystem.setPower(liftSpeed);
         }
         robot.slideSystem.setPower(0);
-    }
-
-    public void liftUpPosition(int position, double liftSpeed) {
-
-        robot.slideSystem.setTargetPosition(position);
-        robot.slideSystem.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.slideSystem.setPower(Math.abs(liftSpeed));
-
     }
 
     /*

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.TestCode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_SlideSystem;
 import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
 
 // name this opMode and determine a group
@@ -11,7 +10,7 @@ import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_CompetitionBot;
 public class LiftEncoderTest extends OpMode{
 
     /* Declare OpMode members. */
-    HardwareMap_SlideSystem robot = new HardwareMap_SlideSystem();
+    HardwareMap_CompetitionBot robot = new HardwareMap_CompetitionBot();
 
     @Override
     public void init() {
@@ -60,7 +59,7 @@ public class LiftEncoderTest extends OpMode{
             telemetry.addData("Button","None");
             robot.slideSystem.setPower(0);
         }
-        telemetry.addData("Lift Position",String.format("%7d", robot.slideSystem.getCurrentPosition()));
+        telemetry.addData("Lift Position", String.format("%7d", robot.slideSystem.getCurrentPosition()));
         telemetry.update();
 
     }

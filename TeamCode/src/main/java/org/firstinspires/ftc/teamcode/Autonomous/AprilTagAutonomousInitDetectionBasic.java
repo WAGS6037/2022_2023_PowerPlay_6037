@@ -22,27 +22,25 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_Holonomic;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.HardwareMap.HardwareMap_Holonomic;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
 @Autonomous
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
+public class AprilTagAutonomousInitDetectionBasic extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -188,41 +186,22 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
             if (state == 1){
                 telemetry.addData("State","1");
                 telemetry.update();
-                strafeRight(DRIVE_SPEED, 6);
-                //encoderDrive(DRIVE_SPEED, 1, 1, 1, 1, 4.0);
+                strafeRight(DRIVE_SPEED, 5);
                 state = 2;
             }
             //drive forward into region 1
             if(state == 2){
                 telemetry.addData("State", "2");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
-                //encoderDrive(DRIVE_SPEED, 5, -5, 5, -5, 4.0);
-                state = 5; //Skip to the end and stop motors to test straightness
+                encoderDrive(DRIVE_SPEED, -6, -6, -6, -6, 4.0);
+                state = 3; //Skip to the end and stop motors to test straightness
             }
-            //turn left a bit
+            //stop robot
             if(state == 3){
                 telemetry.addData("State", "3");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
                 stopMotors();
                 state = 4;
-            }
-            //strafe left (right tho) just a bit
-            if(state == 4){
-                telemetry.addData("State", "3");
-                telemetry.update();
-                //encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
-                strafeRight(DRIVE_SPEED, 1);
-                stopMotors();
-                state = 5;
-            }
-            //stop robot
-            if(state == 5){
-                telemetry.addData("State", "3");
-                telemetry.update();
-                stopMotors();
-                state = 6;
             }
 
         } else if (tagOfInterest.id == MIDDLE) {
@@ -247,7 +226,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
             if(state == 1){
                 telemetry.addData("State", "1");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
+                encoderDrive(DRIVE_SPEED, -6, -6, -6, -6, 4.0);
                 state = 2;
             }
             //stop robot
@@ -276,42 +255,31 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
                 waitForStart();
                 state = 1;
             }
-            //strafe right one block (to align with region 3)
+            //strafe right (really left) into mid-substation (to align with region 3)
             if(state == 1){
                 telemetry.addData("State", "1");
                 telemetry.update();
-                //encoderDrive(DRIVE_SPEED, 10, 10, 10, 10, 4.0);
-                strafeLeft(DRIVE_SPEED, 6);
+                strafeLeft(DRIVE_SPEED, 5);
                 state = 2;
             }
             //drive forward into region 3
             if(state == 2){
                 telemetry.addData("State", "2");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, 6, 6, 6, 6, 4.0);
+                encoderDrive(DRIVE_SPEED, -6, -6, -6, -6, 4.0);
                 state = 3;
             }
-            //turn left a bit
+            //stop robot
             if(state == 3){
                 telemetry.addData("State", "3");
                 telemetry.update();
-                encoderDrive(DRIVE_SPEED, -1, 1, -1, -1, 4.0);
                 stopMotors();
                 state = 4;
             }
-            //stop robot
-            if(state == 4){
-                telemetry.addData("State", "3");
-                telemetry.update();
-                stopMotors();
-                state = 5;
-            }
-
         }
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
         //while (opModeIsActive()) {sleep(20);}
     }
-
     void tagToTelemetry(AprilTagDetection detection) {
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER));
@@ -456,4 +424,3 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         stopMotors();
         }
     }
-//

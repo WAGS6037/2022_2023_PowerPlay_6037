@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.HardwareMap;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.DcMotorSimple;
-//import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-//import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -29,7 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Motor channel:  Right Back (RB) drive motor:        "rightBack"
  */
 
-public class HardwareMap_CompetitionBot
+public class HardwareMap_WheelTest
 {
     /* Public OpMode members. */
     public DcMotor leftFront = null;
@@ -43,8 +39,8 @@ public class HardwareMap_CompetitionBot
     public DcMotor slideSystem = null;
 
     //The claws are both servos
-    public Servo leftClaw = null; //was CRServo but it was changed to 180 degrees
-    public Servo rightClaw = null; //was CRServo but it was changed to 180 degrees
+    //public Servo leftClaw = null; //was CRServo but it was changed to 180 degrees
+    //public Servo rightClaw = null; //was CRServo but it was changed to 180 degrees
 
     public BNO055IMU imu;
 
@@ -60,7 +56,7 @@ public class HardwareMap_CompetitionBot
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor */
-    public HardwareMap_CompetitionBot(){
+    public HardwareMap_WheelTest(){
     }
 
     /* Initialize standard Hardware interfaces */
@@ -80,8 +76,8 @@ public class HardwareMap_CompetitionBot
         slideSystem = hwMap.get(DcMotor.class, "slideSystem");
 
         // Intake motors
-        leftClaw = hwMap.get(Servo.class, "leftClaw");
-        rightClaw = hwMap.get(Servo.class, "rightClaw");
+        //leftClaw = hwMap.get(Servo.class, "leftClaw");
+        //rightClaw = hwMap.get(Servo.class, "rightClaw");
 
         //  OTHER ITEMS
         imu = hwMap.get(BNO055IMU.class, "imu");
@@ -137,8 +133,8 @@ public class HardwareMap_CompetitionBot
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Slide system
-        slideSystem.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slideSystem.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideSystem.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     //////// EXTRA Components
 
         //IMU
